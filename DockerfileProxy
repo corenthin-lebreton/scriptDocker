@@ -1,0 +1,12 @@
+FROM ubuntu
+
+RUN apt update -y
+RUN apt install iputils-ping -y
+RUN apt install haproxy -y
+
+
+RUN sed -i '126 a while [ 1 ]; do sleep 30; done;' /etc/init.d/haproxy
+
+ENTRYPOINT ["/etc/init.d/haproxy", "start"]
+
+
