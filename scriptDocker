@@ -1,0 +1,27 @@
+#!/bin/bash
+
+cd /root/Bureau/GitScriptDocker
+
+git clone https://github.com/firewax712/scriptDocker
+
+cd ./scriptDocker
+
+docker build -t mysql -f DockerfileSQl /root/Bureau/
+docker build -t apache -f DockerfileApache /root/Bureau/
+docker build -t haproxy -f DockerfileProxy /root/Bureau/
+
+
+docker network create frontend
+docker network create backend
+
+for i in {1..3}
+do
+	docker run -itd --name=apache$i --hostname=apache$i --net=frontend -v $(pwd):/var/www/html apache	
+	docker network connect backend apache$i
+
+
+done
+
+docker run -itd --name=mysql --hostname=mysql --net=backend mysql
+	
+docker run -itd -p 80:80 --name=haproxy --hostname=haproxy --net=frontend -v $(pwd)/haproxy.cfg:/etc/haproxy/haproxy.cfg haproxy
